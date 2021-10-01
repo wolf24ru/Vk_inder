@@ -5,9 +5,9 @@ from VKinder_db import VKinder_db
 from urllib.parse import urlparse
 
 # Подключение к ВК групе
-TOKEN_VK_GROUP = '3205c71e7b40a49f76212f837948cc30732790d54bc5f7c446c458d201ebae6810281418b979888ad9eb0'
-SERVICE_KEY = '1d3b026e1d3b026e1d3b026e4f1d437ba211d3b1d3b026e7dd950775b189f26d67f7236'
-GROUP_ID = 207491288
+TOKEN_VK_GROUP = ''
+SERVICE_KEY = ''
+GROUP_ID = int
 
 # Подключение к БД
 BD_USER = 'vk'
@@ -266,7 +266,7 @@ def main_logic(request_dict: object, prog_status):
 
 if __name__ == '__main__':
     # Подключение к VK
-    vk_connect = VK_bot(GROUP_ID, TOKEN_VK_GROUP)
+    vk_connect = VK_bot(GROUP_ID, TOKEN_VK_GROUP, SERVICE_KEY)
 
     # Подключение к БД
     db_connect = VKinder_db(BD_USER, USER_PASSWORD, BD_NAME)
