@@ -1,3 +1,9 @@
+import random
+import vk_api
+from VK_class import VK_bot
+from VKinder_db import VKinder_db
+from urllib.parse import urlparse
+
 # Подключение к ВК групе
 TOKEN_VK_GROUP = '3205c71e7b40a49f76212f837948cc30732790d54bc5f7c446c458d201ebae6810281418b979888ad9eb0'
 SERVICE_KEY = '1d3b026e1d3b026e1d3b026e4f1d437ba211d3b1d3b026e7dd950775b189f26d67f7236'
@@ -7,16 +13,18 @@ GROUP_ID = 207491288
 BD_USER = 'vk'
 USER_PASSWORD = '12345678'
 BD_NAME = 'vkinder_db'
-import random
-import vk_api
-import requests
-from VK_class import VK_bot
-from VKinder_db import VKinder_db
-from urllib.parse import urlparse
 
 
-def person_find(vk_connect, db_connect, user_id: int, request_dict: object) -> dict:
-    # получить человека по заданным параметрам
+def person_find(vk_connect, db_connect, user_id: int, request_dict) -> dict:
+    """
+        Функция для нахождения человека по заданным характеристикам
+        :param vk_connect: Объект vk_api
+        :param db_connect: Объект sqlalchemy для соединения с БД
+        :param user_id: id пользователя с котором идет переписка
+        :param request_dict: объект базы данных(sqlalchemy.qery) с данными последнего запроса
+        :return: Словарь с данными найденного пользователя
+    """
+
     try:
         search_users = vk_connect.user_session.get_api().users.search(
             count=1000,
