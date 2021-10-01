@@ -1,16 +1,14 @@
 import random
-from typing import Dict, Union, Any, Type
-
 import vk_api
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
+from vk_api.bot_longpoll import VkBotLongPoll
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.upload import VkUpload
 
 
 class VK_bot:
-    def __init__(self, group_id: int, token_vk_group: str):
+    def __init__(self, group_id: int, token_vk_group: str, service_key: str):
         self.token_vk_group = token_vk_group
         self.vk_session = vk_api.VkApi(token=self.token_vk_group)
         self.longpoll = VkBotLongPoll(self.vk_session, group_id)
