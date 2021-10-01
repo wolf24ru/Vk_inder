@@ -1,13 +1,16 @@
 import random
 import vk_api
+import Sicret_deta
 from VK_class import VK_bot
 from VKinder_db import VKinder_db
 from urllib.parse import urlparse
 
+
+
 # Подключение к ВК групе
-TOKEN_VK_GROUP = ''
-SERVICE_KEY = ''
-GROUP_ID = int
+TOKEN_VK_GROUP = Sicret_deta.TOKEN_VK_GROUP
+SERVICE_KEY = Sicret_deta.SERVICE_KEY
+GROUP_ID = Sicret_deta.GROUP_ID
 
 # Подключение к БД
 BD_USER = 'vk'
@@ -24,7 +27,6 @@ def person_find(vk_connect, db_connect, user_id: int, request_dict) -> dict:
         :param request_dict: объект базы данных(sqlalchemy.qery) с данными последнего запроса
         :return: Словарь с данными найденного пользователя
     """
-
     try:
         search_users = vk_connect.user_session.get_api().users.search(
             count=1000,
@@ -75,8 +77,12 @@ def person_find(vk_connect, db_connect, user_id: int, request_dict) -> dict:
     else:
         return person_find(vk_connect, user_id, request_dict)
 
-
 def take_token(vk_connect: object, id_user: str):
+    """
+    Просит токен у пользователя и обрабатывает его. Так создает подключение с правами пользователя
+    :param vk_connect: Объект vk_api
+    :param user_id: id пользователя с котором идет переписка
+    """
     # Пишет сообщение о том что ему нужен доступ
     vk_connect.send_msg(message=f'Один маленький нюанс. Для полноценнной работы мне нужно твое разершение.\n'
                                 f'А так как я чат бот, перенаправлять тебя на другие источники я не могу.\n'
@@ -97,7 +103,14 @@ def take_token(vk_connect: object, id_user: str):
 
 
     # и подключается к данными пользваотедля
-def start(event: object, user_name: str) -> object: #vk_connect, db_connect):
+
+def start(event, user_name: str) -> object: #vk_connect, db_connect):
+    """
+    Начало общения
+    :param event: Объект vk_api
+    :param user_name: имя пользователя
+    :return: объект БД с последним запросом пользователя
+    """
     take_token(vk_connect, event.user_id)
     # проверка на нового пользователя
     # если пользователь новый
