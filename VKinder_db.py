@@ -51,7 +51,7 @@ class VKinder_db:
         """
         Подключение к БД
         :param user: Имя пользователя БД
-        :param password: Пороль пользователя БД
+        :param password: Пароль пользователя БД
         :param db: Имя БД
         :param port: Порт подключения (по умолчанию 5432)
         """
@@ -74,8 +74,16 @@ class VKinder_db:
             ])
             self.sess.commit()
 
-    #   добавление нового запроса
     def add_request(self, id_user: int, age_from: int, age_to: int, sex: int, city: str, marital_status: int):
+        """
+        Добавление нового запроса
+        :param id_user: Идентификатор пользователя, соответствует id в ВК
+        :param age_from: Левая граница возраста
+        :param age_to: Правая граница возраста
+        :param sex: Пол
+        :param city: Город
+        :param marital_status: Семейное положение
+        """
         request_id = 1
         query = self.sess.query(User_request).all()
         if query:
@@ -89,14 +97,22 @@ class VKinder_db:
                                    marital_status=marital_status))
         self.sess.commit()
 
-    # 	добавление нового пользователя
     def add_user(self, id_user: int, name_user: str):
-
+        """
+        Добавление нового пользователя в БД
+        :param id_user: Идентификатор пользователя, соответствует id в ВК
+        :param name_user: Имя пользователя
+        """
         self.sess.add(User_table(id_user=id_user, name_user=name_user))
         self.sess.commit()
 
     # 	добавление пользователя из результата запроса
     def add_search(self, search_user_id: int, to_id_user: int):
+        """
+        Добавление информации о найденном человеке, что бы его больше е выкидывало в поиск:
+        :param search_user_id: Идентификатор найденного пользователя, соответствует id в ВК
+        :param to_id_user: Идентификатор пользователя от которого происходит запрос, соответствует id в ВК
+        """
         id_search = 1
         query = self.sess.query(Search_users).all()
         if query:
@@ -107,20 +123,35 @@ class VKinder_db:
                                    ))
         self.sess.commit()
 
-    #   удаление запроса
     def delete_request(self):
+        """
+        Удаление запроса
+        в сатии реализации
+        """
         pass
 
-    #   Удаление пользователя
     def delete_user(self):
+        """
+        Удаление пользователя
+        в сатии реализации
+        """
         pass
 
-    #   Удаление пользователя из результата запроса
     def delete_search(self):
+        """
+        Удаление результата запроса
+        в сатии реализации
+        """
         pass
 
-    #   Проверка на нового пользователя
     def check_new_user(self, user_id: int, user_name: str) -> bool:
+        """
+        Проверка на "нового пользователя". Проверяет есть ли пользователь от которого осуществляется запрос в БД
+        И добавление его в БД если его там нет
+        :param user_id: Идентификатор пользователя, соответствует id в ВК
+        :param user_name: Имя пользователя
+        :return: True - если пользователь новый; False - если пользователь уже есть в БД.
+        """
         query = self.sess.query(User_table)
         for id_u in query:
             if user_id == id_u.id_user:
@@ -129,6 +160,13 @@ class VKinder_db:
         return True
 
     def check_user_search(self, person_id: int) -> bool:
+        # Дополнить проверку на пользователя, иначе даже для других пользователей не будут выдаваться найденные люди
+        # у конкретного пользователя
+        """
+        Проверка на выдачу конкретного найденного человека
+        :param person_id: Идентификатор найденного человека
+        :return: True - Пользователь ранее был найден; False - Пользователя еще нет в БД
+        """
         query = self.sess.query(Search_users).where(Search_users.search_user_id == int(person_id)).all()
         if query:
             return True
@@ -137,6 +175,11 @@ class VKinder_db:
     # Проверка на наличе запроса от пользователя в БД
     #   Выдача последнего запроса пользователя
     def last_request(self, user_id: int) -> dict:
+        """
+        Проверка на наличе запроса от пользователя в БД; Выдача последнего запроса пользователя;
+        :param user_id: Идентификатор пользователя
+        :return: Последний запрос пользователя
+        """
         query = self.sess.query(User_request).where(User_request.id_user == int(user_id)).all()
         if query:
             return query[-1]

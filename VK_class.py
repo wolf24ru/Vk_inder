@@ -2,19 +2,19 @@ import random
 import vk_api
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
-from vk_api.bot_longpoll import VkBotLongPoll
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.upload import VkUpload
 
 
 class VK_bot:
-    def __init__(self, group_id: int, token_vk_group: str, service_key: str):
+    def __init__(self, user_token: str, token_vk_group: str, service_key: str):
         self.token_vk_group = token_vk_group
+        self.user_token = user_token
         self.vk_session = vk_api.VkApi(token=self.token_vk_group)
-        self.longpoll = VkBotLongPoll(self.vk_session, group_id)
-        self.user_session = object
+        # self.longpoll = VkBotLongPoll(self.vk_session, group_id)
+        self.user_session = vk_api.VkApi(token=user_token)
         self.photo_upload = VkUpload(self.vk_session)
-        service_key = '1d3b026e1d3b026e1d3b026e4f1d437ba211d3b1d3b026e7dd950775b189f26d67f7236'
+        # service_key = '1d3b026e1d3b026e1d3b026e4f1d437ba211d3b1d3b026e7dd950775b189f26d67f7236'
         self.service_session = vk_api.VkApi(token=service_key)
 
         # self.vk = self.vk_session.get_api()
@@ -52,9 +52,6 @@ class VK_bot:
         self.keyboard_wrong.add_button('Закончить', color=VkKeyboardColor.NEGATIVE)
 
         self.keyboard_new.get_keyboard()
-
-    def user_auoth(self, user_token):
-        self.user_session = vk_api.VkApi(token=user_token)
 
     def send_photo(self, user_id: int, photo):
         self.vk_session.get_api().messages.send(

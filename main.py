@@ -3,14 +3,12 @@ import vk_api
 import Sicret_deta
 from VK_class import VK_bot
 from VKinder_db import VKinder_db
-from urllib.parse import urlparse
-
-
 
 # Подключение к ВК групе
 TOKEN_VK_GROUP = Sicret_deta.TOKEN_VK_GROUP
 SERVICE_KEY = Sicret_deta.SERVICE_KEY
-GROUP_ID = Sicret_deta.GROUP_ID
+USER_TOKEN = Sicret_deta.USER_TOKEN
+
 
 # Подключение к БД
 BD_USER = 'vk'
@@ -77,29 +75,29 @@ def person_find(vk_connect, db_connect, user_id: int, request_dict) -> dict:
     else:
         return person_find(vk_connect, user_id, request_dict)
 
-def take_token(vk_connect: object, id_user: str):
-    """
-    Просит токен у пользователя и обрабатывает его. Так создает подключение с правами пользователя
-    :param vk_connect: Объект vk_api
-    :param user_id: id пользователя с котором идет переписка
-    """
-    # Пишет сообщение о том что ему нужен доступ
-    vk_connect.send_msg(message=f'Один маленький нюанс. Для полноценнной работы мне нужно твое разершение.\n'
-                                f'А так как я чат бот, перенаправлять тебя на другие источники я не могу.\n'
-                                f'Так что мне нужна твоя помощь\n'
-                                f'\n'
-                                f'Для этого перейди по этой ссылке:\n'
-                                f'\nhttps://oauth.vk.com/authorize?client_id=7895500&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=pages&response_type=token&v=5.131\n'
-                                f'\nСкопируй то что будет в адресной страке и отправь мне\n'
-                                f'Я жду!',
-                        user_id=id_user
-                        )
-    url = urlparse(vk_connect.listen_dialog()[1].text)
-    params_one = url.fragment.split(';')
-    params = [i.split('&')[0] for i in params_one]
-    params_dict = {i.split('=')[0]: i.split('=')[1] for i in params}
-    if params_dict:
-        vk_connect.user_auoth(params_dict['access_token'])
+# def take_token(vk_connect: object, id_user: str):
+#     """
+#     Просит токен у пользователя и обрабатывает его. Так создает подключение с правами пользователя
+#     :param vk_connect: Объект vk_api
+#     :param user_id: id пользователя с котором идет переписка
+#     """
+#     # Пишет сообщение о том что ему нужен доступ
+#     vk_connect.send_msg(message=f'Один маленький нюанс. Для полноценнной работы мне нужно твое разершение.\n'
+#                                 f'А так как я чат бот, перенаправлять тебя на другие источники я не могу.\n'
+#                                 f'Так что мне нужна твоя помощь\n'
+#                                 f'\n'
+#                                 f'Для этого перейди по этой ссылке:\n'
+#                                 f'\nhttps://oauth.vk.com/authorize?client_id=7895500&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=pages&response_type=token&v=5.131\n'
+#                                 f'\nСкопируй то что будет в адресной страке и отправь мне\n'
+#                                 f'Я жду!',
+#                         user_id=id_user
+#                         )
+#     url = urlparse(vk_connect.listen_dialog()[1].text)
+#     params_one = url.fragment.split(';')
+#     params = [i.split('&')[0] for i in params_one]
+#     params_dict = {i.split('=')[0]: i.split('=')[1] for i in params}
+#     if params_dict:
+#         vk_connect.user_auoth(params_dict['access_token'])
 
 
     # и подключается к данными пользваотедля
@@ -111,7 +109,7 @@ def start(event, user_name: str) -> object: #vk_connect, db_connect):
     :param user_name: имя пользователя
     :return: объект БД с последним запросом пользователя
     """
-    take_token(vk_connect, event.user_id)
+    # take_token(vk_connect, event.user_id)
     # проверка на нового пользователя
     # если пользователь новый
     if db_connect.check_new_user(event.user_id, user_name):
@@ -120,8 +118,6 @@ def start(event, user_name: str) -> object: #vk_connect, db_connect):
                             user_id=event.user_id
                             )
         request_dict = vk_connect.new_user_search(event.user_id)
-        # Отобразить клавиатура с сообщением  'Давай еще раз все проверим'
-
         #     варианты кнопок: "все верно, начать поиск" "изменить запрос"
         db_connect.add_request(event.user_id,
                                request_dict['age_from'],
@@ -129,8 +125,8 @@ def start(event, user_name: str) -> object: #vk_connect, db_connect):
                                request_dict['sex'],
                                request_dict['city'],
                                request_dict['marital_status'])
-        vk_connect.send_msg(message=f'Ну а теперь мы можем попытаться найти того кто покорит твое сердце!\n'
-                                    f'жмякай кнопку "Поиск" и приступим',
+        vk_connect.send_msg(message=f'Ну а теперь мы можем попытаться найти того кто покорит твоё сердце!\n'
+                                    f'Жмякай кнопку "Поиск" и приступим',
                             user_id=event.user_id,
                             keyboard=vk_connect.keyboard_old.get_keyboard()
                             )
@@ -279,7 +275,7 @@ def main_logic(request_dict: object, prog_status):
 
 if __name__ == '__main__':
     # Подключение к VK
-    vk_connect = VK_bot(GROUP_ID, TOKEN_VK_GROUP, SERVICE_KEY)
+    vk_connect = VK_bot(USER_TOKEN, TOKEN_VK_GROUP, SERVICE_KEY)
 
     # Подключение к БД
     db_connect = VKinder_db(BD_USER, USER_PASSWORD, BD_NAME)
