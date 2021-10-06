@@ -37,7 +37,9 @@ class Search_users(Base):
 
     id_search = sq.Column(sq.Integer, nullable=False)
     search_user_id = sq.Column(sq.Integer, nullable=False)
+    search_user_name = sq.Column(sq.String, nullable=False)
     to_id_user = sq.Column(sq.Integer, sq.ForeignKey('user_table.id_user'))
+    favorite = sq.Column(sq.Boolean, default=False)
     # age = sq.Column(sq.Integer, nullable=False)
     # sex = sq.Column(sq.Integer, nullable=False)
     # city = sq.Column(sq.String, nullable=False)
@@ -97,6 +99,27 @@ class VKinder_db:
                                    marital_status=marital_status))
         self.sess.commit()
 
+    def add_favorite(self, user_id: str):
+        """
+        Добавление в избранное
+        :param user_id: Идентификатор пользователя, соответствует id в ВК
+        """
+        last_find_user = self.sess.query(Search_users) \
+            .where(Search_users.to_id_user == int(user_id)).all()
+        last_find_user[-1].favorite = True
+        self.sess.commit()
+
+    def show_favorite(self, user_id: str) -> object:
+        """
+        Вывод списка избранных
+        :param user_id: Идентификатор пользователя, соответствует id в ВК
+        :return:список всех объектов содержащих favorite = True
+        """
+        all_favorite = self.sess.query(Search_users) \
+            .where(Search_users.favorite == True) \
+            .where(Search_users.to_id_user == int(user_id)).all()
+        return all_favorite
+
     def add_user(self, id_user: int, name_user: str):
         """
         Добавление нового пользователя в БД
@@ -107,7 +130,7 @@ class VKinder_db:
         self.sess.commit()
 
     # 	добавление пользователя из результата запроса
-    def add_search(self, search_user_id: int, to_id_user: int):
+    def add_search(self, search_user_id: int, to_id_user: int, search_user_name: str):
         """
         Добавление информации о найденном человеке, что бы его больше е выкидывало в поиск:
         :param search_user_id: Идентификатор найденного пользователя, соответствует id в ВК
@@ -119,30 +142,42 @@ class VKinder_db:
             id_search += query[-1].id_search
         self.sess.add(Search_users(id_search=id_search,
                                    search_user_id=search_user_id,
-                                   to_id_user=to_id_user
+                                   to_id_user=to_id_user,
+                                   search_user_name=search_user_name
                                    ))
         self.sess.commit()
 
-    def delete_request(self):
+    def delete_request(self, user_id):
         """
         Удаление запроса
         в сатии реализации
         """
-        pass
+        self.sess.query(User_request)\
+            .filter(User_request.id_user == user_id)\
+            .delete(synchronize_session="evaluate")
 
-    def delete_user(self):
+    def delete_user(self, user_id):
         """
         Удаление пользователя
         в сатии реализации
         """
-        pass
+        self.sess.query(User_table)\
+            .filter(User_table.id_user == user_id)\
+            .delete(synchronize_session="evaluate")
 
-    def delete_search(self):
+    def delete_search(self, user_id):
         """
         Удаление результата запроса
         в сатии реализации
         """
-        pass
+        self.sess.query(Search_users)\
+            .filter(Search_users.to_id_user == user_id)\
+            .delete(synchronize_session="evaluate")
+
+    def delete_all(self, user_id):
+        self.delete_request(user_id)
+        self.delete_search(user_id)
+        self.delete_user(user_id)
 
     def check_new_user(self, user_id: int, user_name: str) -> bool:
         """
@@ -159,15 +194,15 @@ class VKinder_db:
         self.add_user(user_id, user_name)
         return True
 
-    def check_user_search(self, person_id: int) -> bool:
-        # Дополнить проверку на пользователя, иначе даже для других пользователей не будут выдаваться найденные люди
-        # у конкретного пользователя
+    def check_user_search(self, person_id: int,  user_id: int) -> bool:
         """
         Проверка на выдачу конкретного найденного человека
         :param person_id: Идентификатор найденного человека
         :return: True - Пользователь ранее был найден; False - Пользователя еще нет в БД
         """
-        query = self.sess.query(Search_users).where(Search_users.search_user_id == int(person_id)).all()
+        query = self.sess.query(Search_users) \
+            .where(Search_users.search_user_id == int(person_id)) \
+            .where(Search_users.to_id_user == int(user_id)).all()
         if query:
             return True
         return False
